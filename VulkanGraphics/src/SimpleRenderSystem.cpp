@@ -49,8 +49,7 @@ void SimpleRenderSystem::CreatePipelineLayout() {
 	pipelineLayoutInfo.pushConstantRangeCount = 1;
 	pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-	if (vkCreatePipelineLayout(m_Device.device(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS)
-		throw std::runtime_error("Failed to Create Pipeline Layout");
+	if (vkCreatePipelineLayout(m_Device.device(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) throw std::runtime_error("Failed to Create Pipeline Layout");
 }
 
 void SimpleRenderSystem::CreatePipeline(VkRenderPass renderPass) {
