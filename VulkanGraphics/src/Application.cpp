@@ -16,13 +16,13 @@ Application::~Application() {}
 void Application::Run() {
 	SimpleRenderSystem simpleRenderSystem(m_Device, m_Renderer.GetSwapChainRenderPass());
 	Camera camera{};
-	camera.SetViewTarget(glm::vec3(-1.0f, -2.0f, -2.0f), glm::vec3(0.0f, 0.0f, 2.5f));
 
 	auto viewer = GameObject::CreateGameObject();
 	ObjectController cameraController{};
 
-	auto currentTime = std::chrono::high_resolution_clock::now();
+	ObjectController cubeController{};
 
+	auto currentTime = std::chrono::high_resolution_clock::now();
 	while (m_Window.IsOpen()) {
 		glfwPollEvents();
 
@@ -33,11 +33,11 @@ void Application::Run() {
 
 		cameraController.MoveInPlaneXZ(m_Window.Get(), timestep, viewer);
 		camera.SetViewYXZ(viewer.m_Transform.translation, viewer.m_Transform.rotation);
+		cubeController.MoveInPlaneXZ(m_Window.Get(), timestep, m_GameObjects[0]);
 
 		float aspect = m_Renderer.GetAspectRatio();
-		//camera.SetOrthographicProjection(-aspect, aspect, -1.0f, 1.0f, -5.0f, 5.0f);
-		camera.SetPerspectiveProjection(glm::radians(70.0f), aspect, 0.1f, 10.0f);
-		
+		camera.SetPerspectiveProjection(glm::radians(70.0f), aspect, 0.1f, 100.0f);
+
 		if (auto commandBuffer = m_Renderer.BeginFrame()) {
 			m_Renderer.BeginSwapChainRenderPass(commandBuffer);
 			simpleRenderSystem.RenderGameObjects(commandBuffer, m_GameObjects, camera);
@@ -50,37 +50,17 @@ void Application::Run() {
 }
 
 void Application::LoadGameObjects() {
-	std::shared_ptr<Model> model = Model::CreateModelFromFile(m_Device, "assets/models/smooth_vase.obj");
-	auto smoothVase = GameObject::CreateGameObject();
-	smoothVase.m_Model = model;
-	smoothVase.m_Transform.translation = { 0.5f, -1.0f, 1.0f };
-	smoothVase.m_Transform.scale *= 1.0f;
-	model.reset();
-
-	model = Model::CreateModelFromFile(m_Device, "assets/models/flat_vase.obj");
-	auto flatVase = GameObject::CreateGameObject();
-	flatVase.m_Model = model;
-	flatVase.m_Transform.translation = { -0.5f, -1.0f, 1.0f };
-	flatVase.m_Transform.scale *= 1.0f;
-	model.reset();
-
-	model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
-	auto coloredCube = GameObject::CreateGameObject();
-	coloredCube.m_Model = model;
-	coloredCube.m_Transform.translation = { 0.0f, 0.0f, 0.0f };
-	coloredCube.m_Transform.scale *= 1.0f;
-	model.reset();
-
-	model = Model::CreateModelFromFile(m_Device, "assets/models/cube.obj");
+	std::shared_ptr<Model> model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
 	auto cube = GameObject::CreateGameObject();
 	cube.m_Model = model;
-	cube.m_Transform.translation = { -1.0f, 0.0f, 0.0f };
+	cube.m_Transform.translation = { 0.0, 1.0, 5.0 };
 	cube.m_Transform.scale *= 1.0f;
-	model.reset();
 
-	m_GameObjects.push_back(std::move(smoothVase));
-	m_GameObjects.push_back(std::move(flatVase));
+	auto cube2 = GameObject::CreateGameObject();
+	cube2.m_Model = model;
+	cube2.m_Transform.translation = { 1.0, 1.0, 5.0 };
+	cube2.m_Transform.scale *= 1.0f;
 
-	m_GameObjects.push_back(std::move(coloredCube));
 	m_GameObjects.push_back(std::move(cube));
+	m_GameObjects.push_back(std::move(cube2));
 }
