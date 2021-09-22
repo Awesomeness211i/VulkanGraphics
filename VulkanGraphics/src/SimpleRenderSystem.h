@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "Device.h"
 #include "Pipeline.h"
+#include "FrameInfo.h"
 #include "GameObject.h"
 
 #include <memory>
@@ -15,7 +16,7 @@ public:
 	SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 	SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-	void RenderGameObjects(VkCommandBuffer cmdBuffer, std::vector<GameObject>& gameObjects, const Camera& camera);
+	void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
 private:
 	void CreatePipelineLayout();
 	void CreatePipeline(VkRenderPass renderPass);

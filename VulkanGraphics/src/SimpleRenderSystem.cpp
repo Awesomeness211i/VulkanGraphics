@@ -19,10 +19,10 @@ SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass renderPass) 
 
 SimpleRenderSystem::~SimpleRenderSystem() { vkDestroyPipelineLayout(m_Device.device(), m_PipelineLayout, nullptr); }
 
-void SimpleRenderSystem::RenderGameObjects(VkCommandBuffer cmdBuffer, std::vector<GameObject>& gameObjects, const Camera& camera) {
-	m_Pipeline->Bind(cmdBuffer);
+void SimpleRenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) {
+	m_Pipeline->Bind(frameInfo.CommandBuffer);
 
-	auto viewProjectionMatrix = camera.GetProjectionMatrix() * camera.GetViewMatrix();
+	auto viewProjectionMatrix = frameInfo.Camera.GetProjectionMatrix() * frameInfo.Camera.GetViewMatrix();
 
 	for (auto& obj : gameObjects) {
 		SimplePushConstantData push{};
@@ -30,9 +30,9 @@ void SimpleRenderSystem::RenderGameObjects(VkCommandBuffer cmdBuffer, std::vecto
 		push.transform = viewProjectionMatrix * modelMatrix;
 		push.normalMatrix = obj.m_Transform.NormalMatrix();
 
-		vkCmdPushConstants(cmdBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-		obj.m_Model->Bind(cmdBuffer);
-		obj.m_Model->Draw(cmdBuffer);
+		vkCmdPushConstants(frameInfo.CommandBuffer, m_PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+		obj.m_Model->Bind(frameInfo.CommandBuffer);
+		obj.m_Model->Draw(frameInfo.CommandBuffer);
 	}
 }
 

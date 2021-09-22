@@ -1,5 +1,6 @@
 #pragma once
 #include "Device.h"
+#include "Buffer.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -44,12 +45,11 @@ public:
 	void Draw(VkCommandBuffer commandBuffer);
 
 private:
-	void CreateBuffers(const Data& builder);
-
-	bool m_HasIndexBuffer{ false };
-	uint32_t m_VertexCount, m_IndexCount;
-	VkBuffer m_VertexBuffer, m_IndexBuffer;
-	VkDeviceMemory m_VertexBufferMemory, m_IndexBufferMemory;
+	void AllocateVertexBuffers(const std::vector<Vertex>& vertices);
+	void AllocateIndexBuffers(const std::vector<uint32_t>& indices);
 
 	Device& m_Device;
+	bool m_HasIndexBuffer{ false };
+	uint32_t m_VertexCount, m_IndexCount;
+	std::unique_ptr<Buffer> m_VertexBuffer, m_IndexBuffer;
 };
