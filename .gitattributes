@@ -1,0 +1,3 @@
+# Binaries
+# Ensure GitHub detects our C++ code as C++ code.
+/VulkanGraphics/src/**.ixx linguist-language=C++
