@@ -1,7 +1,7 @@
 module;
+#include <memory>
 #include <glm/gtc/matrix_transform.hpp>
 export module GameObject;
-import <memory>;
 import Model;
 
 export namespace Florencia {

@@ -1,5 +1,6 @@
+module;
+#include <functional>
 export module Utilities;
-import <functional>;
 
 export namespace Florencia {
 

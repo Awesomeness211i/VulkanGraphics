@@ -1,4 +1,7 @@
 module;
+#include <memory>
+#include <vector>
+#include <stdexcept>
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -11,12 +14,9 @@ import FrameInfo;
 import Pipeline;
 import Device;
 
-import <memory>;
-import <vector>;
+export namespace Florencia {
 
-namespace Florencia {
-
-	export class SimpleRenderSystem {
+	class SimpleRenderSystem {
 	public:
 		SimpleRenderSystem(Device& device, VkRenderPass renderPass);
 		~SimpleRenderSystem();
@@ -37,7 +37,6 @@ namespace Florencia {
 }
 
 module: private;
-import <stdexcept>;
 
 namespace Florencia {
 

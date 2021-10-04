@@ -1,10 +1,13 @@
 module;
+#include <set>
+#include <vector>
+#include <iostream>
+#include <unordered_set>
+
 #include <GLFW\glfw3.h>
 #include <vulkan\vulkan.h>
 export module Device;
 import Window;
-
-import <vector>;
 
 export namespace Florencia {
 
@@ -52,7 +55,7 @@ export namespace Florencia {
         void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory);
 
         VkPhysicalDeviceProperties properties;
-        #ifdef NDEBUG
+        #if !defined(_DEBUG)
         const bool enableValidationLayers = false;
         #else
         const bool enableValidationLayers = true;
@@ -93,9 +96,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <unordered_set>;
-import <iostream>;
-import <set>;
 
 namespace Florencia {
 

@@ -1,4 +1,7 @@
 module;
+#include <limits>
+#include <stdexcept>
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -26,8 +29,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <stdexcept>;
-import <limits>;
 
 namespace Florencia {
 

@@ -1,8 +1,11 @@
 module;
+#include <vector>
+#include <string>
+#include <cassert>
+#include <fstream>
+#include <stdexcept>
 #include <vulkan/vulkan.h>
 export module Pipeline;
-import <string>;
-import <vector>;
 import Device;
 import Model;
 
@@ -52,9 +55,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <stdexcept>;
-import <cassert>;
-import <fstream>;
 
 namespace Florencia {
 

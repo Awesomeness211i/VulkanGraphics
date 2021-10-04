@@ -1,8 +1,9 @@
 module;
+#include <string>
+#include <iostream>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 export module Window;
-import <string>;
 
 export namespace Florencia {
 
@@ -41,7 +42,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <iostream>;
 
 namespace Florencia {
 

@@ -1,4 +1,6 @@
 module;
+#include <stdexcept>
+
 #include <vulkan/vulkan.h>
 export module Buffer;
 import Device;
@@ -53,7 +55,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <stdexcept>;
 
 namespace Florencia {
 

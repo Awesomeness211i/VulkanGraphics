@@ -1,12 +1,14 @@
 module;
+#include <array>
+#include <memory>
+#include <vector>
+#include <stdexcept>
+#include <GLFW/glfw3.h>
 #include <vulkan\vulkan.h>
 export module Renderer;
 import SwapChain;
 import Window;
 import Device;
-
-import <stdexcept>;
-import <memory>;
 
 export namespace Florencia {
 
@@ -56,9 +58,6 @@ export namespace Florencia {
 }
 
 module: private;
-import <GLFW/glfw3.h>;
-import <vector>;
-import <array>;
 
 namespace Florencia {
 

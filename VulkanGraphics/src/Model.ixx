@@ -10,7 +10,6 @@ module;
 #include <string_view>
 #include <unordered_map>
 
-
 #include "../vendor/TinyObjLoader.h"
 #include <glm/gtx/hash.hpp>
 #include <vulkan/vulkan.h>
@@ -68,8 +67,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace std {
 
 	template <>
@@ -83,6 +80,8 @@ namespace std {
 
 }
 
+module: private;
+
 namespace Florencia {
 
 	void Model::Data::LoadModel(const std::string_view filepath) {
@@ -91,9 +90,7 @@ namespace Florencia {
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, error;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &error, filepath.data())) {
-			throw std::runtime_error(warn + error);
-		}
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &error, filepath.data())) { throw std::runtime_error(warn + error); }
 
 		vertices.clear();
 		indices.clear();
@@ -194,7 +191,7 @@ namespace Florencia {
 			m_VertexCount,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-			);
+		);
 
 		m_Device.copyBuffer(stagingBuffer.GetBuffer(), m_VertexBuffer->GetBuffer(), bufferSize);
 	}
