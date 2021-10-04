@@ -97,41 +97,41 @@ namespace Florencia {
 
 	SwapChain::~SwapChain() {
 		for (auto imageView : m_SwapChainImageViews) {
-			vkDestroyImageView(m_Device.device(), imageView, nullptr);
+			vkDestroyImageView(m_Device.Get(), imageView, nullptr);
 		}
 
 		m_SwapChainImageViews.clear();
 
 		if (m_SwapChain != nullptr) {
-			vkDestroySwapchainKHR(m_Device.device(), m_SwapChain, nullptr);
+			vkDestroySwapchainKHR(m_Device.Get(), m_SwapChain, nullptr);
 			m_SwapChain = nullptr;
 		}
 		for (int i = 0; i < m_DepthImages.size(); i++) {
-			vkDestroyImageView(m_Device.device(), m_DepthImageViews[i], nullptr);
-			vkDestroyImage(m_Device.device(), m_DepthImages[i], nullptr);
-			vkFreeMemory(m_Device.device(), m_DepthImageMemorys[i], nullptr);
+			vkDestroyImageView(m_Device.Get(), m_DepthImageViews[i], nullptr);
+			vkDestroyImage(m_Device.Get(), m_DepthImages[i], nullptr);
+			vkFreeMemory(m_Device.Get(), m_DepthImageMemorys[i], nullptr);
 		}
 		for (auto framebuffer : m_SwapChainFramebuffers) {
-			vkDestroyFramebuffer(m_Device.device(), framebuffer, nullptr);
+			vkDestroyFramebuffer(m_Device.Get(), framebuffer, nullptr);
 		}
-		vkDestroyRenderPass(m_Device.device(), m_RenderPass, nullptr);
+		vkDestroyRenderPass(m_Device.Get(), m_RenderPass, nullptr);
 		//cleanup synchronization objects
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroySemaphore(m_Device.device(), m_RenderFinishedSemaphores[i], nullptr);
-			vkDestroySemaphore(m_Device.device(), m_ImageAvailableSemaphores[i], nullptr);
-			vkDestroyFence(m_Device.device(), m_InFlightFences[i], nullptr);
+			vkDestroySemaphore(m_Device.Get(), m_RenderFinishedSemaphores[i], nullptr);
+			vkDestroySemaphore(m_Device.Get(), m_ImageAvailableSemaphores[i], nullptr);
+			vkDestroyFence(m_Device.Get(), m_InFlightFences[i], nullptr);
 		}
 	}
 
 	VkResult SwapChain::acquireNextImage(uint32_t* imageIndex) {
-		vkWaitForFences(m_Device.device(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
-		VkResult result = vkAcquireNextImageKHR(m_Device.device(), m_SwapChain, std::numeric_limits<uint64_t>::max(), m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, imageIndex);
+		vkWaitForFences(m_Device.Get(), 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+		VkResult result = vkAcquireNextImageKHR(m_Device.Get(), m_SwapChain, std::numeric_limits<uint64_t>::max(), m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, imageIndex);
 		return result;
 	}
 
 	VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex) {
 		if (m_ImagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
-			vkWaitForFences(m_Device.device(), 1, &m_ImagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
+			vkWaitForFences(m_Device.Get(), 1, &m_ImagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
 		}
 
 		m_ImagesInFlight[*imageIndex] = m_InFlightFences[m_CurrentFrame];
@@ -150,8 +150,8 @@ namespace Florencia {
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		vkResetFences(m_Device.device(), 1, &m_InFlightFences[m_CurrentFrame]);
-		if (vkQueueSubmit(m_Device.graphicsQueue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS) {
+		vkResetFences(m_Device.Get(), 1, &m_InFlightFences[m_CurrentFrame]);
+		if (vkQueueSubmit(m_Device.GraphicsQueue(), 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 		VkPresentInfoKHR presentInfo = {};
@@ -163,27 +163,26 @@ namespace Florencia {
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = m_SwapChains;
 		presentInfo.pImageIndices = imageIndex;
-		auto result = vkQueuePresentKHR(m_Device.presentQueue(), &presentInfo);
+		auto result = vkQueuePresentKHR(m_Device.PresentQueue(), &presentInfo);
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
 		return result;
 	}
 
 	void SwapChain::createSwapChain() {
-		SwapChainSupportDetails m_SwapChainSupport = m_Device.getSwapChainSupport();
-		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(m_SwapChainSupport.formats);
-		VkPresentModeKHR presentMode = chooseSwapPresentMode(m_SwapChainSupport.presentModes);
-		VkExtent2D extent = chooseSwapExtent(m_SwapChainSupport.capabilities);
-		uint32_t imageCount = m_SwapChainSupport.capabilities.minImageCount + 1;
+		SwapChainSupportDetails m_SwapChainSupport = m_Device.GetSwapChainSupport();
+		VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(m_SwapChainSupport.m_Formats);
+		VkPresentModeKHR presentMode = chooseSwapPresentMode(m_SwapChainSupport.m_PresentModes);
+		VkExtent2D extent = chooseSwapExtent(m_SwapChainSupport.m_Capabilities);
+		uint32_t imageCount = m_SwapChainSupport.m_Capabilities.minImageCount + 1;
 
-		if (m_SwapChainSupport.capabilities.maxImageCount > 0 &&
-			imageCount > m_SwapChainSupport.capabilities.maxImageCount) {
-			imageCount = m_SwapChainSupport.capabilities.maxImageCount;
+		if (m_SwapChainSupport.m_Capabilities.maxImageCount > 0 && imageCount > m_SwapChainSupport.m_Capabilities.maxImageCount) {
+			imageCount = m_SwapChainSupport.m_Capabilities.maxImageCount;
 		}
 
 		VkSwapchainCreateInfoKHR createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		createInfo.surface = m_Device.surface();
+		createInfo.surface = m_Device.GetSurface();
 		createInfo.minImageCount = imageCount;
 		createInfo.imageFormat = surfaceFormat.format;
 		createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -191,10 +190,10 @@ namespace Florencia {
 		createInfo.imageArrayLayers = 1;
 		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-		QueueFamilyIndices indices = m_Device.findPhysicalQueueFamilies();
-		uint32_t queueFamilyIndices[] = { indices.graphicsFamily, indices.presentFamily };
+		QueueFamilyIndices indices = m_Device.FindPhysicalQueueFamilies();
+		uint32_t queueFamilyIndices[] = { indices.m_GraphicsFamily, indices.m_PresentFamily };
 
-		if (indices.graphicsFamily != indices.presentFamily) {
+		if (indices.m_GraphicsFamily != indices.m_PresentFamily) {
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
@@ -205,22 +204,22 @@ namespace Florencia {
 			createInfo.pQueueFamilyIndices = nullptr;  // Optional
 		}
 
-		createInfo.preTransform = m_SwapChainSupport.capabilities.currentTransform;
+		createInfo.preTransform = m_SwapChainSupport.m_Capabilities.currentTransform;
 		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 		createInfo.oldSwapchain = m_PreviousSwapChain == nullptr ? VK_NULL_HANDLE : m_PreviousSwapChain->m_SwapChain;
 
-		if (vkCreateSwapchainKHR(m_Device.device(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS) {
+		if (vkCreateSwapchainKHR(m_Device.Get(), &createInfo, nullptr, &m_SwapChain) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create swap chain!");
 		}
 		//we only specified a minimum number of images in the swap chain, so the implementation is
 		//allowed to create a swap chain with more. That's why we'll first query the final number of
 		//images with vkGetSwapchainImagesKHR, then resize the container and finally call it again to
 		//retrieve the handles.
-		vkGetSwapchainImagesKHR(m_Device.device(), m_SwapChain, &imageCount, nullptr);
+		vkGetSwapchainImagesKHR(m_Device.Get(), m_SwapChain, &imageCount, nullptr);
 		m_SwapChainImages.resize(imageCount);
-		vkGetSwapchainImagesKHR(m_Device.device(), m_SwapChain, &imageCount, m_SwapChainImages.data());
+		vkGetSwapchainImagesKHR(m_Device.Get(), m_SwapChain, &imageCount, m_SwapChainImages.data());
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
 	}
@@ -239,7 +238,7 @@ namespace Florencia {
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(m_Device.device(), &viewInfo, nullptr, &m_SwapChainImageViews[i]) != VK_SUCCESS) {
+			if (vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_SwapChainImageViews[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
 			}
 		}
@@ -298,7 +297,7 @@ namespace Florencia {
 		m_RenderPassInfo.dependencyCount = 1;
 		m_RenderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(m_Device.device(), &m_RenderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
+		if (vkCreateRenderPass(m_Device.Get(), &m_RenderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
 	}
@@ -318,7 +317,7 @@ namespace Florencia {
 			framebufferInfo.height = m_SwapChainExtent.height;
 			framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(m_Device.device(), &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]) != VK_SUCCESS) {
+			if (vkCreateFramebuffer(m_Device.Get(), &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create framebuffer!");
 			}
 		}
@@ -347,7 +346,7 @@ namespace Florencia {
 			imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 			imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			imageInfo.flags = 0;
-			m_Device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImages[i], m_DepthImageMemorys[i]);
+			m_Device.CreateImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_DepthImages[i], m_DepthImageMemorys[i]);
 			VkImageViewCreateInfo viewInfo{};
 			viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 			viewInfo.image = m_DepthImages[i];
@@ -358,7 +357,7 @@ namespace Florencia {
 			viewInfo.subresourceRange.levelCount = 1;
 			viewInfo.subresourceRange.baseArrayLayer = 0;
 			viewInfo.subresourceRange.layerCount = 1;
-			if (vkCreateImageView(m_Device.device(), &viewInfo, nullptr, &m_DepthImageViews[i]) != VK_SUCCESS) {
+			if (vkCreateImageView(m_Device.Get(), &viewInfo, nullptr, &m_DepthImageViews[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create texture image view!");
 			}
 		}
@@ -378,9 +377,9 @@ namespace Florencia {
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			if (vkCreateSemaphore(m_Device.device(), &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) != VK_SUCCESS ||
-				vkCreateSemaphore(m_Device.device(), &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS ||
-				vkCreateFence(m_Device.device(), &fenceInfo, nullptr, &m_InFlightFences[i]) != VK_SUCCESS) {
+			if (vkCreateSemaphore(m_Device.Get(), &semaphoreInfo, nullptr, &m_ImageAvailableSemaphores[i]) != VK_SUCCESS ||
+				vkCreateSemaphore(m_Device.Get(), &semaphoreInfo, nullptr, &m_RenderFinishedSemaphores[i]) != VK_SUCCESS ||
+				vkCreateFence(m_Device.Get(), &fenceInfo, nullptr, &m_InFlightFences[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create synchronization objects for a frame!");
 			}
 		}
@@ -426,7 +425,7 @@ namespace Florencia {
 	}
 
 	VkFormat SwapChain::findDepthFormat() {
-		return m_Device.findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+		return m_Device.FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 	}
 
 }

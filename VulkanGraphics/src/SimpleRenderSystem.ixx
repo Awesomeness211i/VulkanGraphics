@@ -50,7 +50,7 @@ namespace Florencia {
 		CreatePipeline(renderPass);
 	}
 
-	SimpleRenderSystem::~SimpleRenderSystem() { vkDestroyPipelineLayout(m_Device.device(), m_PipelineLayout, nullptr); }
+	SimpleRenderSystem::~SimpleRenderSystem() { vkDestroyPipelineLayout(m_Device.Get(), m_PipelineLayout, nullptr); }
 
 	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) {
 		m_Pipeline->Bind(frameInfo.CommandBuffer);
@@ -82,7 +82,7 @@ namespace Florencia {
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-		if (vkCreatePipelineLayout(m_Device.device(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) throw std::runtime_error("Failed to Create Pipeline Layout");
+		if (vkCreatePipelineLayout(m_Device.Get(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) throw std::runtime_error("Failed to Create Pipeline Layout");
 	}
 
 	void SimpleRenderSystem::CreatePipeline(VkRenderPass renderPass) {

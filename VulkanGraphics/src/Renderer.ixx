@@ -146,16 +146,16 @@ namespace Florencia {
 		VkCommandBufferAllocateInfo allocateInfo{};
 		allocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocateInfo.commandPool = m_Device.getCommandPool();
+		allocateInfo.commandPool = m_Device.GetCommandPool();
 		allocateInfo.commandBufferCount = static_cast<uint32_t>(m_CommandBuffers.size());
 
-		if (vkAllocateCommandBuffers(m_Device.device(), &allocateInfo, m_CommandBuffers.data()) != VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(m_Device.Get(), &allocateInfo, m_CommandBuffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to Allocate Command Buffer");
 		}
 	}
 
 	void Renderer::FreeCommandBuffers() {
-		vkFreeCommandBuffers(m_Device.device(), m_Device.getCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
+		vkFreeCommandBuffers(m_Device.Get(), m_Device.GetCommandPool(), static_cast<uint32_t>(m_CommandBuffers.size()), m_CommandBuffers.data());
 		m_CommandBuffers.clear();
 	}
 
@@ -165,7 +165,7 @@ namespace Florencia {
 			extent = m_Window.GetExtent();
 			glfwWaitEvents();
 		}
-		vkDeviceWaitIdle(m_Device.device());
+		vkDeviceWaitIdle(m_Device.Get());
 		if (m_SwapChain == nullptr) m_SwapChain = std::make_unique<SwapChain>(m_Device, extent);
 		else {
 			std::shared_ptr<SwapChain> oldSwapChain = std::move(m_SwapChain);

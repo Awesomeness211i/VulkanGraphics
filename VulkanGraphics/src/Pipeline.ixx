@@ -64,9 +64,9 @@ namespace Florencia {
 	}
 
 	Pipeline::~Pipeline() {
-		vkDestroyShaderModule(m_Device.device(), m_VertShaderModule, nullptr);
-		vkDestroyShaderModule(m_Device.device(), m_FragShaderModule, nullptr);
-		vkDestroyPipeline(m_Device.device(), m_GraphicsPipeline, nullptr);
+		vkDestroyShaderModule(m_Device.Get(), m_VertShaderModule, nullptr);
+		vkDestroyShaderModule(m_Device.Get(), m_FragShaderModule, nullptr);
+		vkDestroyPipeline(m_Device.Get(), m_GraphicsPipeline, nullptr);
 	}
 
 	void Pipeline::Bind(VkCommandBuffer commandBuffer) {
@@ -217,7 +217,7 @@ namespace Florencia {
 		graphicsInfo.basePipelineIndex = -1;
 		graphicsInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-		if (vkCreateGraphicsPipelines(m_Device.device(), VK_NULL_HANDLE, 1, &graphicsInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS) {
+		if (vkCreateGraphicsPipelines(m_Device.Get(), VK_NULL_HANDLE, 1, &graphicsInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to Create Graphics Pipeline");
 		}
 	}
@@ -229,7 +229,7 @@ namespace Florencia {
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 		createInfo.pNext = nullptr;
 		createInfo.flags = 0;
-		if (vkCreateShaderModule(m_Device.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+		if (vkCreateShaderModule(m_Device.Get(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
 			throw std::runtime_error("Failed to Create Shader Module");
 		}
 	}

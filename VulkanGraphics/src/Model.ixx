@@ -192,7 +192,7 @@ namespace Florencia {
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_Device.copyBuffer(stagingBuffer.GetBuffer(), m_VertexBuffer->GetBuffer(), bufferSize);
+		m_Device.CopyBuffer(stagingBuffer.GetBuffer(), m_VertexBuffer->GetBuffer(), bufferSize);
 	}
 
 	void Model::AllocateIndexBuffers(const std::vector<uint32_t>& indices) {
@@ -223,7 +223,7 @@ namespace Florencia {
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
 		);
 
-		m_Device.copyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
+		m_Device.CopyBuffer(stagingBuffer.GetBuffer(), m_IndexBuffer->GetBuffer(), bufferSize);
 	}
 
 	std::vector<VkVertexInputBindingDescription> Model::Vertex::GetBindingDescriptions() {

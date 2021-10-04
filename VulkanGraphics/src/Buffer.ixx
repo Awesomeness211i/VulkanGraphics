@@ -64,23 +64,23 @@ namespace Florencia {
 	{
 		m_AlignmentSize = GetAlignment(instanceSize, minOffsetAlignment);
 		m_BufferSize = m_AlignmentSize * instanceCount;
-		device.createBuffer(m_BufferSize, usageFlags, memoryPropertyFlags, m_Buffer, m_Memory);
+		device.CreateBuffer(m_BufferSize, usageFlags, memoryPropertyFlags, m_Buffer, m_Memory);
 	}
 
 	Buffer::~Buffer() {
 		Unmap();
-		vkDestroyBuffer(m_Device.device(), m_Buffer, nullptr);
-		vkFreeMemory(m_Device.device(), m_Memory, nullptr);
+		vkDestroyBuffer(m_Device.Get(), m_Buffer, nullptr);
+		vkFreeMemory(m_Device.Get(), m_Memory, nullptr);
 	}
 
 	VkResult Buffer::Map(VkDeviceSize size, VkDeviceSize offset) {
 		if (!m_Buffer || !m_Memory) { throw std::runtime_error("Called map on buffer before create"); }
-		return vkMapMemory(m_Device.device(), m_Memory, offset, size, 0, &m_Mapped);
+		return vkMapMemory(m_Device.Get(), m_Memory, offset, size, 0, &m_Mapped);
 	}
 
 	void Buffer::Unmap() {
 		if (m_Mapped) {
-			vkUnmapMemory(m_Device.device(), m_Memory);
+			vkUnmapMemory(m_Device.Get(), m_Memory);
 			m_Mapped = nullptr;
 		}
 	}
@@ -103,7 +103,7 @@ namespace Florencia {
 		mappedRange.memory = m_Memory;
 		mappedRange.offset = offset;
 		mappedRange.size = size;
-		return vkFlushMappedMemoryRanges(m_Device.device(), 1, &mappedRange);
+		return vkFlushMappedMemoryRanges(m_Device.Get(), 1, &mappedRange);
 	}
 
 	VkDescriptorBufferInfo Buffer::DescriptorInfo(VkDeviceSize size, VkDeviceSize offset) {
@@ -116,7 +116,7 @@ namespace Florencia {
 		mappedRange.memory = m_Memory;
 		mappedRange.offset = offset;
 		mappedRange.size = size;
-		return vkInvalidateMappedMemoryRanges(m_Device.device(), 1, &mappedRange);
+		return vkInvalidateMappedMemoryRanges(m_Device.Get(), 1, &mappedRange);
 	}
 
 	void Buffer::WriteToIndex(void* data, int index) {

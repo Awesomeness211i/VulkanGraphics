@@ -116,7 +116,7 @@ namespace Florencia {
 			}
 		}
 
-		vkDeviceWaitIdle(m_Device.device());
+		vkDeviceWaitIdle(m_Device.Get());
 	}
 
 }
