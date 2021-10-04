@@ -75,9 +75,6 @@ namespace Florencia {
 
 	VkResult Buffer::Map(VkDeviceSize size, VkDeviceSize offset) {
 		if (!m_Buffer || !m_Memory) { throw std::runtime_error("Called map on buffer before create"); }
-		if (size == VK_WHOLE_SIZE) {
-			return vkMapMemory(m_Device.device(), m_Memory, 0, m_BufferSize, 0, &m_Mapped);
-		}
 		return vkMapMemory(m_Device.device(), m_Memory, offset, size, 0, &m_Mapped);
 	}
 

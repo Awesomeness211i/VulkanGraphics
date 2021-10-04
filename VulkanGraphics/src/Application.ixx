@@ -1,36 +1,37 @@
 module;
+#include <chrono>
+#include <vector>
+
+#include <glm/glm.hpp>
+
 #include <vulkan/vulkan.h>
 export module Application;
-import <iostream>;
-import <chrono>;
-import <vector>;
-import <memory>;
-
-import SimpleRenderSystem;
-import ObjectController;
 import GameObject;
-import FrameInfo;
 import Renderer;
 import Window;
 import Device;
-import Buffer;
-import Camera;
 
 namespace Florencia {
 
+	struct GlobalUBO {
+		glm::mat4 ProjectionView{ 1.0f };
+		glm::vec3 LightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, -1.0f });
+	};
+
 	export class Application {
 	public:
-		Application();
-		~Application();
+		Application() { LoadGameObjects(); }
+		~Application() {}
 
 		Application(const Application&) = delete;
 		Application& operator=(const Application&) = delete;
 
 		void Run();
+
 	private:
 		void LoadGameObjects();
 
-		Window m_Window{ WindowProps(800, 600, "Vulkan")};
+		Window m_Window{ WindowProps(800, 600, "Vulkan Tutorial") };
 		Device m_Device{ m_Window };
 		Renderer m_Renderer{ m_Window, m_Device };
 
@@ -40,41 +41,36 @@ namespace Florencia {
 }
 
 module: private;
-import <glm/glm.hpp>;
+import SimpleRenderSystem;
+import ObjectController;
+import FrameInfo;
+import Buffer;
+import Camera;
+import Model;
 
 namespace Florencia {
 
-	struct GlobalUBO {
-		glm::mat4 ProjectionView{ 1.0f };
-		glm::vec3 LightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, -1.0f });
-	};
-
-	Application::Application() {
-		LoadGameObjects();
-	}
-
-	Application::~Application() {}
-
 	void Application::LoadGameObjects() {
-		std::shared_ptr<Model> model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
+		auto model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
 		auto cube = GameObject::CreateGameObject();
-		cube.m_Model = model;
 		cube.m_Transform.translation = { 0.0, 0.0, 2.0 };
 		cube.m_Transform.scale *= 1.0f;
-
+		cube.m_Model = model;
 		m_GameObjects.push_back(std::move(cube));
 	}
 
 	void Application::Run() {
-		Buffer globalUniformBufferObject{
-			m_Device,
-			sizeof(GlobalUBO),
-			SwapChain::MAX_FRAMES_IN_FLIGHT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			m_Device.properties.limits.minUniformBufferOffsetAlignment
-		};
-		globalUniformBufferObject.Map();
+		std::vector<std::unique_ptr<Buffer>> uboBuffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++) {
+			uboBuffers[i] = std::make_unique<Buffer>(
+				m_Device,
+				sizeof(GlobalUBO),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			uboBuffers[i]->Map();
+		}
 
 		SimpleRenderSystem simpleRenderSystem(m_Device, m_Renderer.GetSwapChainRenderPass());
 		Camera camera{};
@@ -109,8 +105,8 @@ namespace Florencia {
 				//Update
 				GlobalUBO ubo{};
 				ubo.ProjectionView = camera.GetProjectionMatrix() * camera.GetViewMatrix();
-				globalUniformBufferObject.WriteToIndex(&ubo, frameIndex);
-				globalUniformBufferObject.FlushIndex(frameIndex);
+				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
+				uboBuffers[frameIndex]->Flush();
 
 				//Render
 				m_Renderer.BeginSwapChainRenderPass(commandBuffer);

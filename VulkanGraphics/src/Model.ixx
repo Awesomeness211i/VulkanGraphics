@@ -50,11 +50,10 @@ export namespace Florencia {
 		Model(const Model&) = delete;
 		Model& operator=(const Model&) = delete;
 
-		static std::unique_ptr<Model> CreateModelFromFile(Device& device, const std::string_view filepath);
-
 		void Bind(VkCommandBuffer commandBuffer);
 		void Draw(VkCommandBuffer commandBuffer);
 
+		static std::shared_ptr<Model> CreateModelFromFile(Device& device, const std::string_view filepath);
 	private:
 		void AllocateVertexBuffers(const std::vector<Vertex>& vertices);
 		void AllocateIndexBuffers(const std::vector<uint32_t>& indices);
@@ -146,10 +145,10 @@ namespace Florencia {
 
 	Model::~Model() {}
 
-	std::unique_ptr<Model> Model::CreateModelFromFile(Device& device, const std::string_view filepath) {
+	std::shared_ptr<Model> Model::CreateModelFromFile(Device& device, const std::string_view filepath) {
 		Data data{};
 		data.LoadModel(filepath);
-		return std::make_unique<Model>(device, data);
+		return std::make_shared<Model>(device, data);
 	}
 
 	void Model::Bind(VkCommandBuffer commandBuffer) {
