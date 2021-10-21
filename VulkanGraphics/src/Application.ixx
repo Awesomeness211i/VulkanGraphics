@@ -6,10 +6,17 @@ module;
 
 #include <vulkan/vulkan.h>
 export module Application;
+import SimpleRenderSystem;
+import ObjectController;
+import Descriptors;
 import GameObject;
+import FrameInfo;
 import Renderer;
+import Camera;
+import Buffer;
 import Window;
 import Device;
+import Model;
 
 namespace Florencia {
 
@@ -20,7 +27,13 @@ namespace Florencia {
 
 	export class Application {
 	public:
-		Application() { LoadGameObjects(); }
+		Application() {
+			m_GlobalPool = DescriptorPool::Builder(m_Device)
+				.SetMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+				.Build();
+			LoadGameObjects();
+		}
 		~Application() {}
 
 		Application(const Application&) = delete;
@@ -35,18 +48,13 @@ namespace Florencia {
 		Device m_Device{ m_Window };
 		Renderer m_Renderer{ m_Window, m_Device };
 
+		std::unique_ptr<DescriptorPool> m_GlobalPool{};
 		std::vector<GameObject> m_GameObjects;
 	};
 
 }
 
 module: private;
-import SimpleRenderSystem;
-import ObjectController;
-import FrameInfo;
-import Buffer;
-import Camera;
-import Model;
 
 namespace Florencia {
 
@@ -72,7 +80,19 @@ namespace Florencia {
 			uboBuffers[i]->Map();
 		}
 
-		SimpleRenderSystem simpleRenderSystem(m_Device, m_Renderer.GetSwapChainRenderPass());
+		auto globalSetLayout = DescriptorSetLayout::Builder(m_Device)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.Build();
+
+		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++) {
+			auto bufferInfo = uboBuffers[i]->DescriptorInfo();
+			DescriptorWriter(*globalSetLayout, *m_GlobalPool)
+				.WriteBuffer(0, &bufferInfo)
+				.Build(globalDescriptorSets[i]);
+		}
+
+		SimpleRenderSystem simpleRenderSystem(m_Device, m_Renderer.GetSwapChainRenderPass(), globalSetLayout->GetDescriptorSetLayout());
 		Camera camera{};
 
 		auto viewer = GameObject::CreateGameObject();
@@ -96,10 +116,11 @@ namespace Florencia {
 			if (auto commandBuffer = m_Renderer.BeginFrame()) {
 				int frameIndex = m_Renderer.GetFrameIndex();
 				FrameInfo frameInfo{
+					camera,
 					frameIndex,
 					timeStep,
 					commandBuffer,
-					camera
+					globalDescriptorSets[frameIndex]
 				};
 
 				//Update

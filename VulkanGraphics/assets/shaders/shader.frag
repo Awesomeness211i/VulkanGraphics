@@ -7,7 +7,7 @@ layout(location = 0) in vec4 color;
 layout(location = 0) out vec4 o_Color;
 
 layout(push_constant) uniform Push {
-	mat4 transform; //projection * view * model
+	mat4 modelMatrix;
 	mat4 normalMatrix;
 } push;
 

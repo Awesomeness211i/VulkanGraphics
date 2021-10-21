@@ -6,10 +6,11 @@ import Camera;
 export namespace Florencia {
 
 	struct FrameInfo {
+		Camera& Camera;
 		int FrameIndex;
 		float FrameTime;
 		VkCommandBuffer CommandBuffer;
-		Camera& Camera;
+		VkDescriptorSet GlobalDescriptorSet;
 	};
 
 }

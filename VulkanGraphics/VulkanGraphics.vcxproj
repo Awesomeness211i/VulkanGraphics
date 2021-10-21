@@ -93,6 +93,7 @@
   <ItemGroup>
     <ClCompile Include="src\Buffer.ixx" />
     <ClCompile Include="src\Camera.ixx" />
+    <ClCompile Include="src\Descriptors.ixx" />
     <ClCompile Include="src\Device.ixx" />
     <ClCompile Include="src\FrameInfo.ixx" />
     <ClCompile Include="src\GameObject.ixx" />
