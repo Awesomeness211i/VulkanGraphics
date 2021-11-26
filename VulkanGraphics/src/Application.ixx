@@ -20,9 +20,9 @@ namespace Florencia {
 
 	struct GlobalUBO {
 		glm::mat4 ProjectionView{ 1.0f };
-		glm::vec4 AmbientLightColor{ 0.9f, 0.3f, 0.1f, 0.01f }; //4th component is light intensity
-		glm::vec4 LightPosition{ -2.0f, -2.0f, -2.0f, 0.0f }; //ignore 4th component
-		glm::vec4 LightColor{ 0.7f, 0.1f, 0.9f, 0.5f }; //4th component is light intensity
+		glm::vec4 AmbientLightColor{ 1.0f, 1.0f, 1.0f, 0.01f }; //4th component is light intensity
+		glm::vec4 LightPosition{ 1.0f, 0.0f, 0.0f, 0.0f }; //ignore 4th component
+		glm::vec4 LightColor{ 1.0f, 1.0f, 1.0f, 1.0f }; //4th component is light intensity
 	};
 
 	export class Application {
@@ -49,7 +49,7 @@ namespace Florencia {
 		Renderer m_Renderer{ m_Window, m_Device };
 
 		std::unique_ptr<DescriptorPool> m_GlobalPool{};
-		std::vector<GameObject> m_GameObjects;
+		GameObject::Map_t m_GameObjects;
 	};
 
 }
@@ -62,21 +62,21 @@ namespace Florencia {
 		cube.m_Transform.translation = { 0.0f, 0.0f, 0.0f };
 		cube.m_Transform.scale *= 1.0f;
 		cube.m_Model = model;
-		m_GameObjects.push_back(std::move(cube));
+		m_GameObjects.emplace(cube.GetID(), std::move(cube));
 
 		model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
 		auto colorcube = GameObject::CreateGameObject();
 		colorcube.m_Transform.translation = { 2.0f, 0.0f, 0.0f };
 		colorcube.m_Transform.scale *= 1.0f;
 		colorcube.m_Model = model;
-		m_GameObjects.push_back(std::move(colorcube));
+		m_GameObjects.emplace(colorcube.GetID(), std::move(colorcube));
 
 		model = Model::CreateModelFromFile(m_Device, "assets/models/quad.obj");
 		auto floor = GameObject::CreateGameObject();
 		floor.m_Transform.translation = { 1.0f, 0.5f, 0.0f };
 		floor.m_Transform.scale *= 2.0f;
 		floor.m_Model = model;
-		m_GameObjects.push_back(std::move(floor));
+		m_GameObjects.emplace(floor.GetID(), std::move(floor));
 	}
 
 	void Application::Run() {
@@ -132,7 +132,8 @@ namespace Florencia {
 					frameIndex,
 					timeStep,
 					commandBuffer,
-					globalDescriptorSets[frameIndex]
+					globalDescriptorSets[frameIndex],
+					m_GameObjects
 				};
 
 				//Update
@@ -143,7 +144,7 @@ namespace Florencia {
 
 				//Render
 				m_Renderer.BeginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.RenderGameObjects(frameInfo, m_GameObjects);
+				simpleRenderSystem.RenderGameObjects(frameInfo);
 				m_Renderer.EndSwapChainRenderPass(commandBuffer);
 				m_Renderer.EndFrame();
 			}

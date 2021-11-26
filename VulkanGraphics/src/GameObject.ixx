@@ -1,5 +1,6 @@
 module;
 #include <memory>
+#include <unordered_map>
 #include <glm/gtc/matrix_transform.hpp>
 export module GameObject;
 import Model;
@@ -20,6 +21,7 @@ export namespace Florencia {
 	class GameObject {
 	public:
 		using ID_t = unsigned int;
+		using Map_t = std::unordered_map<ID_t, GameObject>;
 
 		GameObject(const GameObject&) = delete;
 		GameObject& operator=(const GameObject&) = delete;

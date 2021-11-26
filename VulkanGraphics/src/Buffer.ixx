@@ -3,7 +3,7 @@ module;
 
 #include <vulkan/vulkan.h>
 export module Buffer;
-import Device;
+export import Device;
 
 export namespace Florencia {
 

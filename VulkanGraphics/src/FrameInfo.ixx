@@ -1,7 +1,8 @@
 module;
 #include <vulkan/vulkan.h>
 export module FrameInfo;
-import Camera;
+export import GameObject;
+export import Camera;
 
 export namespace Florencia {
 
@@ -11,6 +12,7 @@ export namespace Florencia {
 		float FrameTime;
 		VkCommandBuffer CommandBuffer;
 		VkDescriptorSet GlobalDescriptorSet;
+		GameObject::Map_t& GameObjects;
 	};
 
 }

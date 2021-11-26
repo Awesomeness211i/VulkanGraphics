@@ -5,9 +5,9 @@ module;
 #include <GLFW/glfw3.h>
 #include <vulkan\vulkan.h>
 export module Renderer;
-import SwapChain;
-import Window;
-import Device;
+export import SwapChain;
+export import Window;
+export import Device;
 
 export namespace Florencia {
 

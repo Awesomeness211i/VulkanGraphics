@@ -7,7 +7,7 @@ module;
 #include <GLFW\glfw3.h>
 #include <vulkan\vulkan.h>
 export module Device;
-import Window;
+export import Window;
 
 export namespace Florencia {
 

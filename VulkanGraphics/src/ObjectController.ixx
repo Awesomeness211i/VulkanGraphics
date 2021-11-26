@@ -6,8 +6,8 @@ module;
 
 #include <GLFW/glfw3.h>
 export module ObjectController;
-import GameObject;
-import Window;
+export import GameObject;
+export import Window;
 
 namespace Florencia {
 

@@ -8,7 +8,7 @@ module;
 
 #include <vulkan/vulkan.h>
 export module Descriptors;
-import Device;
+export import Device;
 
 export namespace Florencia {
 

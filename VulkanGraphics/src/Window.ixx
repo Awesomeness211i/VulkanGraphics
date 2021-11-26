@@ -72,10 +72,10 @@ namespace Florencia {
 	}
 
 	void Window::FramebufferResizeCallback(GLFWwindow* window, int width, int height) {
-		auto t_Window = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-		t_Window->m_Properties.Resized = true;
-		t_Window->m_Properties.Width = width;
-		t_Window->m_Properties.Height = height;
+		auto glfwWindowUserPointer = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
+		glfwWindowUserPointer->m_Properties.Resized = true;
+		glfwWindowUserPointer->m_Properties.Width = width;
+		glfwWindowUserPointer->m_Properties.Height = height;
 	}
 
 }

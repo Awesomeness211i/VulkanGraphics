@@ -6,7 +6,7 @@ module;
 #include <stdexcept>
 #include <vulkan/vulkan.h>
 export module SwapChain;
-import Device;
+export import Device;
 
 export namespace Florencia {
 

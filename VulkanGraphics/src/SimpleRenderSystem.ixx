@@ -9,10 +9,10 @@ module;
 
 #include <vulkan/vulkan.h>
 export module SimpleRenderSystem;
-import GameObject;
-import FrameInfo;
-import Pipeline;
-import Device;
+export import GameObject;
+export import FrameInfo;
+export import Pipeline;
+export import Device;
 
 export namespace Florencia {
 
@@ -24,7 +24,7 @@ export namespace Florencia {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects);
+		void RenderGameObjects(FrameInfo& frameInfo);
 	private:
 		void CreatePipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void CreatePipeline(VkRenderPass renderPass);
@@ -50,12 +50,14 @@ namespace Florencia {
 
 	SimpleRenderSystem::~SimpleRenderSystem() { vkDestroyPipelineLayout(m_Device.Get(), m_PipelineLayout, nullptr); }
 
-	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frameInfo, std::vector<GameObject>& gameObjects) {
+	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frameInfo) {
 		m_Pipeline->Bind(frameInfo.CommandBuffer);
 
 		vkCmdBindDescriptorSets(frameInfo.CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &frameInfo.GlobalDescriptorSet, 0, nullptr);
 
-		for (auto& obj : gameObjects) {
+		for (auto& keyvalue : frameInfo.GameObjects) {
+			auto& obj = keyvalue.second;
+			if (obj.m_Model == nullptr) { continue; }
 			SimplePushConstantData push{};
 			push.modelMatrix = obj.m_Transform.Mat4();;
 			push.normalMatrix = obj.m_Transform.NormalMatrix();

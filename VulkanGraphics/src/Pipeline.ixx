@@ -6,8 +6,8 @@ module;
 #include <stdexcept>
 #include <vulkan/vulkan.h>
 export module Pipeline;
-import Device;
-import Model;
+export import Device;
+export import Model;
 
 export namespace Florencia {
 

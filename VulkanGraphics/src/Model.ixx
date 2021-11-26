@@ -15,9 +15,9 @@ module;
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
 export module Model;
-import Utilities;
-import Device;
-import Buffer;
+export import Utilities;
+export import Device;
+export import Buffer;
 
 export namespace Florencia {
 
