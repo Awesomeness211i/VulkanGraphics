@@ -54,8 +54,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	Pipeline::Pipeline(Device& device, const PipelineConfigInfo& info, const std::string& vertPath, const std::string& fragPath)

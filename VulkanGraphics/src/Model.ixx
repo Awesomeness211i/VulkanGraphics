@@ -79,8 +79,6 @@ namespace std {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	void Model::Data::LoadModel(const std::string_view filepath) {

@@ -1,9 +1,7 @@
 module;
 #include <chrono>
-#include <vector>
-
+#include <memory>
 #include <glm/glm.hpp>
-
 #include <vulkan/vulkan.h>
 export module Application;
 import SimpleRenderSystem;
@@ -22,7 +20,9 @@ namespace Florencia {
 
 	struct GlobalUBO {
 		glm::mat4 ProjectionView{ 1.0f };
-		glm::vec3 LightDirection = glm::normalize(glm::vec3{ 1.0f, -3.0f, -1.0f });
+		glm::vec4 AmbientLightColor{ 0.9f, 0.3f, 0.1f, 0.01f }; //4th component is light intensity
+		glm::vec4 LightPosition{ -2.0f, -2.0f, -2.0f, 0.0f }; //ignore 4th component
+		glm::vec4 LightColor{ 0.7f, 0.1f, 0.9f, 0.5f }; //4th component is light intensity
 	};
 
 	export class Application {
@@ -54,17 +54,29 @@ namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	void Application::LoadGameObjects() {
-		auto model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
+		auto model = Model::CreateModelFromFile(m_Device, "assets/models/cube.obj");
 		auto cube = GameObject::CreateGameObject();
-		cube.m_Transform.translation = { 0.0, 0.0, 2.0 };
+		cube.m_Transform.translation = { 0.0f, 0.0f, 0.0f };
 		cube.m_Transform.scale *= 1.0f;
 		cube.m_Model = model;
 		m_GameObjects.push_back(std::move(cube));
+
+		model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
+		auto colorcube = GameObject::CreateGameObject();
+		colorcube.m_Transform.translation = { 2.0f, 0.0f, 0.0f };
+		colorcube.m_Transform.scale *= 1.0f;
+		colorcube.m_Model = model;
+		m_GameObjects.push_back(std::move(colorcube));
+
+		model = Model::CreateModelFromFile(m_Device, "assets/models/quad.obj");
+		auto floor = GameObject::CreateGameObject();
+		floor.m_Transform.translation = { 1.0f, 0.5f, 0.0f };
+		floor.m_Transform.scale *= 2.0f;
+		floor.m_Model = model;
+		m_GameObjects.push_back(std::move(floor));
 	}
 
 	void Application::Run() {
@@ -81,7 +93,7 @@ namespace Florencia {
 		}
 
 		auto globalSetLayout = DescriptorSetLayout::Builder(m_Device)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			.Build();
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -99,13 +111,13 @@ namespace Florencia {
 		ObjectController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
+
 		while (m_Window.IsOpen()) {
 			m_Window.Update();
 
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float timeStep = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			currentTime = newTime;
-			timeStep = glm::min(timeStep, 1.0f);
 
 			cameraController.MoveInPlaneXZ(m_Window.Get(), timeStep, viewer);
 			camera.SetViewYXZ(viewer.m_Transform.translation, viewer.m_Transform.rotation);

@@ -1,7 +1,6 @@
 module;
 #include <array>
 #include <memory>
-#include <vector>
 #include <stdexcept>
 #include <GLFW/glfw3.h>
 #include <vulkan\vulkan.h>
@@ -56,8 +55,6 @@ export namespace Florencia {
 	};
 
 }
-
-module: private;
 
 namespace Florencia {
 

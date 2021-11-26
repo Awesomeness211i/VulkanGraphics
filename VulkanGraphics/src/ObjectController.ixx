@@ -35,8 +35,6 @@ namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	void ObjectController::MoveInPlaneXZ(GLFWwindow* window, float timestep, GameObject& object) {

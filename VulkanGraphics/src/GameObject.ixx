@@ -43,8 +43,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	glm::mat4 TransformComponent::Mat4() {

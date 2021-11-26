@@ -28,8 +28,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	void Camera::SetOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {

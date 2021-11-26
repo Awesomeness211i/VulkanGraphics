@@ -8,10 +8,14 @@ layout(location = 3) in vec2 uv;
 
 //Outputs
 layout(location = 0) out vec4 o_Color;
+layout(location = 1) out vec4 o_WorldPosition;
+layout(location = 2) out vec4 o_WorldNormal;
 
 layout(set = 0, binding = 0) uniform GlobalUBO {
 	mat4 projectionViewMatrix;
-	vec3 directionToLight;
+	vec4 ambientLightColor; //4th component is light intensity
+	vec4 lightPosition; //ignore 4th component
+	vec4 lightColor; //4th component is light intensity
 } ubo;
 
 layout(push_constant) uniform Push {
@@ -19,13 +23,11 @@ layout(push_constant) uniform Push {
 	mat4 normalMatrix;
 } push;
 
-const float AMBIENT = 0.02;
-
 void main() {
-	gl_Position = ubo.projectionViewMatrix * push.modelMatrix * position;
+	vec4 positionWorld = push.modelMatrix * position;
+	gl_Position = ubo.projectionViewMatrix * positionWorld;
 
-	vec3 normalWorldSpace = normalize((push.normalMatrix * normal).xyz);
-	float lightIntensity = max(dot(normalWorldSpace, ubo.directionToLight), AMBIENT);
-
-	o_Color = lightIntensity * color;
+	o_WorldPosition = positionWorld;
+	o_WorldNormal = normalize(push.normalMatrix * normal);
+	o_Color = color;
 }

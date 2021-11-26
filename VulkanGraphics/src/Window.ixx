@@ -41,8 +41,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	Window::Window(const WindowProps& props) : m_Properties(props) {

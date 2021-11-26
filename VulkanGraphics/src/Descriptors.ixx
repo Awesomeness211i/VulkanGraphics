@@ -89,8 +89,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	//DescriptorSetLayout Builder

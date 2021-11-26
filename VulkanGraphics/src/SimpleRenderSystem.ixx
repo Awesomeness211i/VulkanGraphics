@@ -36,8 +36,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	struct SimplePushConstantData {

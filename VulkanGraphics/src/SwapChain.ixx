@@ -75,8 +75,6 @@ export namespace Florencia {
 
 }
 
-module: private;
-
 namespace Florencia {
 
 	SwapChain::SwapChain(Device& deviceRef, VkExtent2D extent) : m_Device{ deviceRef }, m_WindowExtent{ extent } { Init(); }
