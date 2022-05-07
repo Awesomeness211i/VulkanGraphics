@@ -4,6 +4,7 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/glm.hpp>
 #include <stdexcept>
+#include <map>
 
 #include "GameObject.h"
 
@@ -35,13 +36,24 @@ namespace Florencia {
 	}
 
 	void PointLightSystem::Render(FrameInfo& frameInfo) {
+		//sort lights
+		std::map<float, GameObject::ID_t> m_SortedLights;
+		for(auto& kv : frameInfo.m_GameObjects) {
+			auto& obj = kv.second;
+			if(obj.m_PointLight == nullptr) { continue; }
+
+			//calculate distance
+			auto offset = frameInfo.m_Camera.GetPostition() - obj.m_Transform.translation;
+			float squareDistance = glm::dot(offset, offset);
+			m_SortedLights[squareDistance] = obj.GetID();
+		}
+
 		m_Pipeline->Bind(frameInfo.m_CommandBuffer);
 
 		vkCmdBindDescriptorSets(frameInfo.m_CommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_PipelineLayout, 0, 1, &frameInfo.m_GlobalDescriptorSet, 0, nullptr);
 
-		for(auto& kv : frameInfo.m_GameObjects) {
-			auto& obj = kv.second;
-			if(obj.m_PointLight == nullptr) { continue; }
+		for(auto it = m_SortedLights.rbegin(); it != m_SortedLights.rend(); ++it) {
+			auto& obj = frameInfo.m_GameObjects.at(it->second);
 			PointLightPushConstants push{};
 			push.m_Position = glm::vec4(obj.m_Transform.translation, 1.0f);
 			push.m_Color = glm::vec4(obj.m_Color.x, obj.m_Color.y, obj.m_Color.z, obj.m_PointLight->m_LightIntensity);
@@ -75,14 +87,15 @@ namespace Florencia {
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
-		if (vkCreatePipelineLayout(m_Device.Get(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) throw std::runtime_error("Failed to Create Pipeline Layout");
+		if (vkCreatePipelineLayout(m_Device.Get(), &pipelineLayoutInfo, nullptr, &m_PipelineLayout) != VK_SUCCESS) { throw std::runtime_error("Failed to Create Pipeline Layout"); }
 	}
 
 	void PointLightSystem::CreatePipeline(VkRenderPass renderPass) {
-		if (m_PipelineLayout == nullptr) throw std::runtime_error("Cannot create pipeline before pipeline layout");
+		if (m_PipelineLayout == nullptr) { throw std::runtime_error("Cannot create pipeline before pipeline layout"); }
 
 		PipelineConfigInfo pipelineConfig{};
 		Pipeline::DefaultPipelineConfigInfo(pipelineConfig);
+		Pipeline::EnableAlphaBlending(pipelineConfig);
 		pipelineConfig.attributeDescriptions.clear();
 		pipelineConfig.bindingDescriptions.clear();
 

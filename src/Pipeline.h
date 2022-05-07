@@ -39,6 +39,7 @@ namespace Florencia {
 		void Bind(VkCommandBuffer commandBuffer);
 
 		static void DefaultPipelineConfigInfo(PipelineConfigInfo& info);
+		static void EnableAlphaBlending(PipelineConfigInfo& info);
 
 	private:
 		static std::vector<char> ReadFile(const std::string& filepath);

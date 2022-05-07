@@ -14,7 +14,8 @@ namespace Florencia {
 	struct GlobalUBO {
 		glm::mat4 m_ProjectionMatrix{1.0f};
 		glm::mat4 m_ViewMatrix{1.0f};
-		glm::vec4 m_AmbientLightColor{1.0f, 1.0f, 1.0f, 0.01f}; //4th component is light intensity
+		glm::mat4 m_InverseViewMatrix{1.0f};
+		glm::vec4 m_AmbientLightColor{0.0f, 0.0f, 0.0f, 0.0f}; //4th component is light intensity
 		PointLight m_PointLights[MAX_LIGHTS];
 		int numLights;
 	};

@@ -19,6 +19,7 @@ struct PointLight {
 layout(set = 0, binding = 0) uniform GlobalUBO {
 	mat4 projectionMatrix;
 	mat4 viewMatrix;
+	mat4 inverseViewMatrix;
 	vec4 ambientLightColor; //4th component is light intensity
 	PointLight pointlights[10];
 	int numLights;
@@ -33,7 +34,7 @@ void main() {
 	vec4 positionWorld = push.modelMatrix * position;
 	gl_Position = ubo.projectionMatrix * ubo.viewMatrix * positionWorld;
 
-	o_WorldPosition = positionWorld;
 	o_WorldNormal = normalize(push.normalMatrix * normal);
+	o_WorldPosition = positionWorld;
 	o_Color = color;
 }

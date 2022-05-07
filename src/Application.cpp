@@ -23,31 +23,45 @@ namespace Florencia {
 	void Application::LoadGameObjects() {
 		auto model = Model::CreateModelFromFile(m_Device, "assets/models/cube.obj");
 		auto cube = GameObject::CreateGameObject();
-		cube.m_Transform.translation = { 0.0f, 0.0f, 0.0f };
+		cube.m_Transform.translation = { -1.0f, 0.0f, 0.0f };
 		cube.m_Transform.scale *= 1.0f;
 		cube.m_Model = model;
 		m_GameObjects.emplace(cube.GetID(), std::move(cube));
 
 		model = Model::CreateModelFromFile(m_Device, "assets/models/colored_cube.obj");
 		auto colorcube = GameObject::CreateGameObject();
-		colorcube.m_Transform.translation = { 2.0f, 0.0f, 0.0f };
+		colorcube.m_Transform.translation = { 1.0f, 0.0f, 0.0f };
 		colorcube.m_Transform.scale *= 1.0f;
 		colorcube.m_Model = model;
 		m_GameObjects.emplace(colorcube.GetID(), std::move(colorcube));
 
 		model = Model::CreateModelFromFile(m_Device, "assets/models/quad.obj");
 		auto floor = GameObject::CreateGameObject();
-		floor.m_Transform.translation = { 1.0f, 0.5f, 0.0f };
+		floor.m_Transform.translation = { 0.0f, 0.5f, 0.0f };
 		floor.m_Transform.scale *= 2.0f;
 		floor.m_Model = model;
 		m_GameObjects.emplace(floor.GetID(), std::move(floor));
 
-		auto pointLight1 = GameObject::CreatePointLight(1.0f, 0.1f, {0.4f, 0.0f, 0.9f});
-		pointLight1.m_Transform.translation = { 1.0f, -1.0f, 1.0f };
+		model = Model::CreateModelFromFile(m_Device, "assets/models/flat_vase.obj");
+		auto flat_vase = GameObject::CreateGameObject();
+		flat_vase.m_Transform.translation = { -1.0f, -0.5f, 0.0f };
+		flat_vase.m_Transform.scale *= 2.0f;
+		flat_vase.m_Model = model;
+		m_GameObjects.emplace(flat_vase.GetID(), std::move(flat_vase));
+
+		model = Model::CreateModelFromFile(m_Device, "assets/models/smooth_vase.obj");
+		auto smooth_vase = GameObject::CreateGameObject();
+		smooth_vase.m_Transform.translation = { 1.0f, -0.5f, 0.0f };
+		smooth_vase.m_Transform.scale *= 2.0f;
+		smooth_vase.m_Model = model;
+		m_GameObjects.emplace(smooth_vase.GetID(), std::move(smooth_vase));
+
+		auto pointLight1 = GameObject::CreatePointLight(1.0f, 0.2f, {0.4f, 0.0f, 0.9f});
+		pointLight1.m_Transform.translation = { 0.0f, -1.0f, 1.0f };
 		m_GameObjects.emplace(pointLight1.GetID(), std::move(pointLight1));
 
-		auto pointLight2 = GameObject::CreatePointLight(1.0f);
-		pointLight2.m_Transform.translation = { 1.0f, -1.0f, -1.0f };
+		auto pointLight2 = GameObject::CreatePointLight(0.5);
+		pointLight2.m_Transform.translation = { 0.0f, -1.0f, -1.0f };
 		m_GameObjects.emplace(pointLight2.GetID(), std::move(pointLight2));
 	}
 
@@ -113,6 +127,7 @@ namespace Florencia {
 				GlobalUBO ubo{};
 				ubo.m_ProjectionMatrix = camera.GetProjectionMatrix();
 				ubo.m_ViewMatrix = camera.GetViewMatrix();
+				ubo.m_InverseViewMatrix = camera.GetInverseViewMatrix();
 				pointLightSystem.Update(frameInfo, ubo);
 				uboBuffers[frameIndex]->WriteToBuffer(&ubo);
 				uboBuffers[frameIndex]->Flush();

@@ -94,6 +94,17 @@ namespace Florencia {
 		info.attributeDescriptions = Model::Vertex::GetAttributeDescriptions();
 	}
 
+	void Pipeline::EnableAlphaBlending(PipelineConfigInfo& info) {
+		info.colorBlendAttachment.blendEnable = VK_TRUE;
+		info.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+		info.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		info.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		info.colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		info.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		info.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+		info.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+	}
+
 	std::vector<char> Pipeline::ReadFile(const std::string& filepath) {
 		std::string enginePath = ENGINE_DIRECTORY + filepath;
 		std::ifstream file{ enginePath, std::ios::ate | std::ios::binary };
