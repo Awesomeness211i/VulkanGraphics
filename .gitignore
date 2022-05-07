@@ -3,5 +3,6 @@
 build/
 
 #Anything Else
+**/*.vscode
 **/*.kdev4
 Git.sh
